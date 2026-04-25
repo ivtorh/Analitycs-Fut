@@ -1,0 +1,77 @@
+=== MELHORES CANDIDATOS ===
+              Confronto Aprovado  Confiança Média Comb. H2H (intervalo)            Mercado Odd Alvo
+ Alpha FC x Beta United      Sim         94        2.55          100.0% Intervalo 1-5 Gols     1.20
+Gamma City x Delta Town      Não         33        1.15           80.0% Intervalo 1-5 Gols     1.20
+
+=== JOGO DO DIA ===
+Alpha FC x Beta United
+Pontuação de Confiança: 94/100
+Sugestão de Bilhete: Entrada sugerida: Intervalo 1-5 Gols | Odd Alvo: 1.20
+Status da Meta: Você está no Dia 1. Objetivo de hoje: R$ 2,00.
+
+Contexto (notícias / heurística):
+- Sinal de possível aumento de gols por ausência/risco defensivo.
+- Sinal de possível queda de gols por ausência ofensiva.
+
+=== PROJEÇÃO DE BANCA (30 DIAS, REINVESTINDO O LUCRO DA META) ===
+Cada dia: lucro alvo = banca abertura × meta diária; entrada sugerida = lucro / (odd-1); banca fecha com lucro incorporado (cenário teórico se a meta for atingida todos os dias).
+ Dia Banca Abertura Lucro Meta Entrada Sugerida Banca Fechamento
+   1       R$ 10,00    R$ 2,00         R$ 10,00         R$ 12,00
+   2       R$ 12,00    R$ 2,40         R$ 12,00         R$ 14,40
+   3       R$ 14,40    R$ 2,88         R$ 14,40         R$ 17,28
+   4       R$ 17,28    R$ 3,46         R$ 17,28         R$ 20,74
+   5       R$ 20,74    R$ 4,15         R$ 20,74         R$ 24,88
+   6       R$ 24,88    R$ 4,98         R$ 24,88         R$ 29,86
+   7       R$ 29,86    R$ 5,97         R$ 29,86         R$ 35,83
+   8       R$ 35,83    R$ 7,17         R$ 35,83         R$ 43,00
+   9       R$ 43,00    R$ 8,60         R$ 43,00         R$ 51,60
+  10       R$ 51,60   R$ 10,32         R$ 51,60         R$ 61,92
+  11       R$ 61,92   R$ 12,38         R$ 61,92         R$ 74,30
+  12       R$ 74,30   R$ 14,86         R$ 74,30         R$ 89,16
+  13       R$ 89,16   R$ 17,83         R$ 89,16        R$ 106,99
+  14      R$ 106,99   R$ 21,40        R$ 106,99        R$ 128,39
+  15      R$ 128,39   R$ 25,68        R$ 128,39        R$ 154,07
+  16      R$ 154,07   R$ 30,81        R$ 154,07        R$ 184,88
+  17      R$ 184,88   R$ 36,98        R$ 184,88        R$ 221,86
+  18      R$ 221,86   R$ 44,37        R$ 221,86        R$ 266,23
+  19      R$ 266,23   R$ 53,25        R$ 266,23        R$ 319,48
+  20      R$ 319,48   R$ 63,90        R$ 319,48        R$ 383,38
+  21      R$ 383,38   R$ 76,68        R$ 383,38        R$ 460,05
+  22      R$ 460,05   R$ 92,01        R$ 460,05        R$ 552,06
+  23      R$ 552,06  R$ 110,41        R$ 552,06        R$ 662,47
+  24      R$ 662,47  R$ 132,49        R$ 662,47        R$ 794,97
+  25      R$ 794,97  R$ 158,99        R$ 794,97        R$ 953,96
+  26      R$ 953,96  R$ 190,79        R$ 953,96      R$ 1.144,75
+  27    R$ 1.144,75  R$ 228,95      R$ 1.144,75      R$ 1.373,71
+  28    R$ 1.373,71  R$ 274,74      R$ 1.373,71      R$ 1.648,45
+  29    R$ 1.648,45  R$ 329,69      R$ 1.648,45      R$ 1.978,14
+  30    R$ 1.978,14  R$ 395,63      R$ 1.978,14      R$ 2.373,76
+
+=== Contexto inteligente (notícias e NLP) ===
+
+Objetivo: enriquecer o motor com ausências e dúvidas de elenco antes do apito inicial.
+
+1) Coleta de dados
+   - NewsAPI / GNews: busque por nome do clube + 'injury' ou 'suspension' nas 48h do jogo.
+   - RSS oficial do clube ou site esportivo (respeite robots.txt e termos de uso).
+   - Opcional: API de escalações (ex.: fornecedores esportivos) cruzada com lista de lesionados.
+
+2) Processamento
+   - Camada simples (já no script): evaluate_news_texts() com palavras-chave em PT/EN.
+   - Camada avançada: envie manchetes para um LLM com prompt fixo pedindo JSON:
+     {"goalkeeper_out": bool, "key_defenders_out": int, "top_scorer_out": bool, "quotes": []}
+   - Camada híbrida: NER (spaCy) para detectar nomes de jogadores + match contra o plantel.
+
+3) Risco para Total de Gols
+   - Goleiro ou zagueiros titulares fora -> tendência a mais gols (defesa mais frágil):
+     aumente cautela no mercado 0-4; pode subir levemente a confiança no 1-5 se o restante
+     do modelo for sólido (ajuste feito em evaluate_news_texts).
+   - Artilheiro ou ponta referência fora -> maior risco de 0x0 ou jogo truncado:
+     penalize a confiança e considere filtro extra manual antes de operar.
+
+4) Encaixe técnico
+   - Implemente fetch_news_from_api(url, params, headers) ou um cliente dedicado.
+   - Concatene títulos relevantes e passe como news_texts= em evaluate_matchup().
+
+
+Fonte de dados: use football-data.org (veja football_data_provider.py) ou scrape apenas onde for legal; o pacote PyPI 'football-data-api' costuma ser wrapper/redirecionamento — verifique o repositório e a licença antes de usar.
