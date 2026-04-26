@@ -1,0 +1,40 @@
+{
+  "project_root": "c:\\Users\\Victor\\Documents\\Analitycs Fut",
+  "check_interval": 5,
+  "commit_delay": 10,
+  "dry_run": false,
+  "monitored_extensions": [
+    ".py",
+    ".html",
+    ".md",
+    ".txt",
+    ".json",
+    ".csv",
+    ".bat",
+    ".sh"
+  ],
+  "ignore_patterns": [
+    "__pycache__",
+    ".git",
+    ".env",
+    ".venv",
+    "*.pyc",
+    "*.pyo",
+    ".DS_Store"
+  ],
+  "commit_prefixes": {
+    ".py": "🐍",
+    ".html": "🎨",
+    ".md": "📚",
+    ".css": "🎨",
+    ".js": "📜",
+    ".json": "⚙️",
+    ".csv": "📊",
+    ".sql": "🗄️",
+    ".sh": "🔧",
+    ".bat": "🔧"
+  },
+  "auto_start": true,
+  "verbosity": "normal",
+  "log_file": null
+}

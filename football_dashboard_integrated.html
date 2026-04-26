@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚽ Football Analytics - Painel Integrado</title>
+    
+    <!-- Google Fonts - Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        /* Animações customizadas */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(34, 197, 94, 0.3); }
+            50% { box-shadow: 0 0 15px rgba(34, 197, 94, 0.6); }
+        }
+        
+        .animate-slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .animate-pulse-glow {
+            animation: pulse-glow 2s infinite;
+        }
+        
+        /* Glass morphism effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Card animations */
+        .card-hover {
+            @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+        }
+        
+        /* Status indicators */
+        .badge-win {
+            @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-emerald-100 text-emerald-800;
+        }
+        
+        .badge-loss {
+            @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-rose-100 text-rose-800;
+        }
+        
+        .badge-pending {
+            @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-amber-100 text-amber-800;
+        }
+        
+        /* Gradient text */
+        .gradient-text {
+            @apply bg-gradient-to-r from-emerald-500 to-blue-500 bg-clip-text text-transparent;
+        }
+        
+        /* Melhor estilo para selects */
+        select, option { 
+            color: #0f172a; 
+            background-color: #ffffff; 
+        }
+        select { 
+            color-scheme: light; 
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 min-h-screen">
+    
+    <!-- Header -->
+    <header class="sticky top-0 z-50 border-b border-slate-800 glass">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="text-3xl">⚽</div>
+                    <div>
+                        <h1 class="text-2xl font-800 gradient-text">Football Analytics</h1>
+                        <p class="text-xs text-slate-400">Sistema de Apostas Inteligente</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-right">
+                        <div id="statusIndicator" class="text-xs font-semibold text-emerald-400">✅ Conectado</div>
+                        <div class="text-[10px] text-slate-400">v1.0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        
+        <!-- SEÇÃO 1: Configuração da API -->
+        <div class="mb-6 rounded-2xl glass p-6 animate-slide-in">
+            <h2 class="text-lg font-bold text-emerald-400 flex items-center gap-2">
+                <span>🔑</span> Configuração da API
+            </h2>
+            
+            <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div>
+                    <label for="apiKey" class="text-sm font-semibold text-slate-300">Token (X-Auth-Token)</label>
+                    <input type="password" id="apiKey" autocomplete="off" 
+                        placeholder="Cole seu token football-data.org"
+                        class="mt-2 w-full rounded-xl border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-slate-100 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20" />
+                    <p class="mt-1 text-xs text-slate-400">
+                        Obtenha em <a href="https://www.football-data.org/client/register" target="_blank" class="text-emerald-400 hover:underline">football-data.org</a>
+                    </p>
+                </div>
+                <div>
+                    <label for="baseUrl" class="text-sm font-semibold text-slate-300">URL base (opcional)</label>
+                    <input type="text" id="baseUrl" 
+                        placeholder="https://api.football-data.org/v4"
+                        class="mt-2 w-full rounded-xl border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-slate-100 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20" />
+                </div>
+            </div>
+
+            <div class="mt-4 flex flex-wrap items-center gap-3">
+                <button type="button" id="btnSaveKey"
+                    class="inline-flex items-center justify-center rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-emerald-500/50">
+                    💾 Salvar Chave
+                </button>
+                <span class="text-sm text-slate-400" id="keyStatus"></span>
+            </div>
+        </div>
+
+        <!-- SEÇÃO 2: Seleção de Campeonato -->
+        <div class="mb-6 rounded-2xl glass p-6 animate-slide-in" style="animation-delay: 0.1s">
+            <h2 class="text-lg font-bold text-blue-400 flex items-center gap-2">
+                <span>🏆</span> Competição e Rodada
+            </h2>
+            
+            <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div>
+                    <label for="competition" class="text-sm font-semibold text-slate-300">Campeonato</label>
+                    <select id="competition"
+                        class="mt-2 w-full rounded-xl border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-slate-100 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20">
+                        <option value="">Selecione um campeonato...</option>
+                    </select>
+                    <p class="mt-2 text-xs text-slate-400" id="compMeta"></p>
+                </div>
+
+                <div>
+                    <label for="matchday" class="text-sm font-semibold text-slate-300">Rodada (automática)</label>
+                    <select id="matchday"
+                        class="mt-2 w-full rounded-xl border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-slate-100 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20">
+                        <option value="">Selecione a rodada...</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="matchdayNum" class="text-sm font-semibold text-slate-300">Rodada (manual)</label>
+                    <input type="number" id="matchdayNum" min="1" max="50" value="1"
+                        class="mt-2 w-full rounded-xl border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-slate-100 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20" />
+                </div>
+            </div>
+
+            <div class="mt-4 flex flex-wrap items-center gap-3">
+                <button type="button" id="btnLoadComps"
+                    class="inline-flex items-center justify-center rounded-xl border border-slate-600 bg-slate-900 px-4 py-2 text-sm font-bold text-slate-100 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-emerald-500 hover:bg-emerald-500/10 hover:shadow active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-emerald-500/20">
+                    📋 Listar Competições
+                </button>
+                <button type="button" id="btnLoadMeta"
+                    class="inline-flex items-center justify-center rounded-xl border border-slate-600 bg-slate-900 px-4 py-2 text-sm font-bold text-slate-100 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-blue-500 hover:bg-blue-500/10 hover:shadow active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-blue-500/20">
+                    🔄 Carregar Temporada
+                </button>
+            </div>
+        </div>
+
+        <!-- SEÇÃO 3: Seleção de Jogos -->
+        <div class="mb-6 rounded-2xl glass p-6 animate-slide-in" style="animation-delay: 0.2s">
+            <h2 class="text-lg font-bold text-amber-400 flex items-center gap-2">
+                <span>🎯</span> Jogos (Selecione múltiplos)
+            </h2>
+            
+            <div class="mt-4 grid grid-cols-1 gap-4">
+                <div class="rounded-xl bg-slate-800/50 p-4 border border-slate-700">
+                    <div class="flex items-center justify-between mb-3">
+                        <label class="text-sm font-semibold text-slate-300">Marque os jogos para análise</label>
+                        <div class="flex gap-2">
+                            <button type="button" id="btnSelectAll" 
+                                class="text-xs px-2 py-1 rounded bg-emerald-600/50 text-emerald-200 hover:bg-emerald-600/70">
+                                Selecionar Todos
+                            </button>
+                            <button type="button" id="btnClearAll"
+                                class="text-xs px-2 py-1 rounded bg-rose-600/50 text-rose-200 hover:bg-rose-600/70">
+                                Limpar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="fixturesContainer" class="space-y-2 max-h-48 overflow-y-auto">
+                        <p class="text-xs text-slate-500">Carregue uma rodada para ver os jogos...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEÇÃO 4: Análise -->
+        <div class="mb-6 rounded-2xl glass p-6 animate-slide-in" style="animation-delay: 0.3s">
+            <h2 class="text-lg font-bold text-rose-400 flex items-center gap-2">
+                <span>🚀</span> Análise
+            </h2>
+            
+            <div class="mt-4 flex flex-wrap items-center gap-3">
+                <button type="button" id="btnAnalyze"
+                    class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-emerald-600 to-blue-600 px-6 py-3 text-base font-bold text-white shadow-lg transition duration-200 hover:-translate-y-1 hover:shadow-xl active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-emerald-500/50">
+                    ⚡ Analisar Jogos
+                </button>
+                <span id="analysisStatus" class="text-sm text-slate-400"></span>
+            </div>
+        </div>
+
+        <!-- SEÇÃO 5: Resultados -->
+        <div id="resultsContainer" class="space-y-6 hidden">
+            
+            <!-- Status do Sistema -->
+            <div class="rounded-2xl glass p-6 animate-slide-in">
+                <h3 class="text-lg font-bold text-emerald-400 flex items-center gap-2">
+                    <span id="systemStatusIcon">✅</span>
+                    <span id="systemStatusText">Status do Sistema</span>
+                </h3>
+                
+                <div class="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
+                    <div class="rounded-xl bg-slate-800/50 p-4 border border-slate-700">
+                        <p class="text-xs font-semibold text-slate-400">Aprovados</p>
+                        <p class="mt-2 text-2xl font-bold text-emerald-400" id="approvedCount">0</p>
+                    </div>
+                    <div class="rounded-xl bg-slate-800/50 p-4 border border-slate-700">
+                        <p class="text-xs font-semibold text-slate-400">Rejeitados</p>
+                        <p class="mt-2 text-2xl font-bold text-rose-400" id="rejectedCount">0</p>
+                    </div>
+                    <div class="rounded-xl bg-slate-800/50 p-4 border border-slate-700">
+                        <p class="text-xs font-semibold text-slate-400">Fonte de Dados</p>
+                        <p class="mt-2 text-xs font-bold text-blue-400" id="dataSource">-</p>
+                    </div>
+                    <div class="rounded-xl bg-slate-800/50 p-4 border border-slate-700">
+                        <p class="text-xs font-semibold text-slate-400">Modo</p>
+                        <p class="mt-2 text-xs font-bold text-amber-400" id="analysisMode">-</p>
+                    </div>
+                </div>
+
+                <div id="analysisError" class="hidden mt-4 rounded-xl bg-rose-500/10 border border-rose-500/50 p-4">
+                    <p class="text-sm font-semibold text-rose-300">⚠️ Erro na Análise</p>
+                    <p class="mt-1 text-xs text-rose-200" id="errorText"></p>
+                </div>
+            </div>
+
+            <!-- Melhor Recomendação -->
+            <div class="rounded-2xl glass p-6 animate-slide-in" style="animation-delay: 0.1s">
+                <h3 class="text-lg font-bold text-emerald-400 flex items-center gap-2">
+                    <span>🏆</span> Melhor Recomendação
+                </h3>
+                
+                <div id="bestRecommendationCard" class="mt-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-blue-500/10 border border-emerald-500/30 p-6">
+                    <p class="text-sm text-slate-300" id="bestMatch">-</p>
+                    <p class="mt-2 text-xs text-slate-400" id="bestReason"></p>
+                    
+                    <div class="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-400">Confiança</p>
+                            <p class="mt-1 text-2xl font-bold text-emerald-400" id="bestConfidence">-</p>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold text-slate-400">Mercado</p>
+                            <p class="mt-1 text-sm font-bold text-blue-400" id="bestMarket">-</p>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold text-slate-400">Odd</p>
+                            <p class="mt-1 text-2xl font-bold text-amber-400" id="bestOdd">-</p>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold text-slate-400">Razões</p>
+                            <p class="mt-1 text-2xl font-bold text-rose-400" id="bestReasons">-</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Todas as Recomendações -->
+            <div class="rounded-2xl glass p-6 animate-slide-in" style="animation-delay: 0.2s">
+                <h3 class="text-lg font-bold text-blue-400 flex items-center gap-2">
+                    <span>📊</span> Todas as Recomendações
+                </h3>
+                
+                <div id="recommendationsTable" class="mt-4 overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-slate-700">
+                                <th class="text-left py-2 px-4 font-semibold text-slate-300">Jogo</th>
+                                <th class="text-center py-2 px-4 font-semibold text-slate-300">Aprovado</th>
+                                <th class="text-right py-2 px-4 font-semibold text-slate-300">Confiança</th>
+                                <th class="text-right py-2 px-4 font-semibold text-slate-300">Gols</th>
+                                <th class="text-right py-2 px-4 font-semibold text-slate-300">Mercado</th>
+                                <th class="text-right py-2 px-4 font-semibold text-slate-300">Odd</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recommendationsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Plano de Bankroll -->
+            <div class="rounded-2xl glass p-6 animate-slide-in" style="animation-delay: 0.3s">
+                <h3 class="text-lg font-bold text-amber-400 flex items-center gap-2">
+                    <span>💰</span> Projeção de Bankroll (30 dias)
+                </h3>
+                
+                <div class="mt-4 space-y-2 max-h-64 overflow-y-auto">
+                    <div id="bankrollTable" class="grid gap-2">
+                        <div class="grid grid-cols-5 gap-2 text-xs font-semibold text-slate-300 pb-2 border-b border-slate-700">
+                            <div>Dia</div>
+                            <div class="text-right">Abertura</div>
+                            <div class="text-right">Meta</div>
+                            <div class="text-right">Stake</div>
+                            <div class="text-right">Fechamento</div>
+                        </div>
+                        <div id="bankrollRows"></div>
+                    </div>
+                </div>
+                
+                <p class="mt-4 text-xs text-slate-400" id="goalMessage"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = location.origin;
+
+        // Elementos
+        const btnSaveKey = document.getElementById("btnSaveKey");
+        const apiKeyInput = document.getElementById("apiKey");
+        const baseUrlInput = document.getElementById("baseUrl");
+        const keyStatus = document.getElementById("keyStatus");
+        
+        const btnLoadComps = document.getElementById("btnLoadComps");
+        const btnLoadMeta = document.getElementById("btnLoadMeta");
+        const competitionSelect = document.getElementById("competition");
+        const matchdaySelect = document.getElementById("matchday");
+        const matchdayNumInput = document.getElementById("matchdayNum");
+        const compMeta = document.getElementById("compMeta");
+        
+        const fixturesContainer = document.getElementById("fixturesContainer");
+        const btnSelectAll = document.getElementById("btnSelectAll");
+        const btnClearAll = document.getElementById("btnClearAll");
+        
+        const btnAnalyze = document.getElementById("btnAnalyze");
+        const analysisStatus = document.getElementById("analysisStatus");
+        const resultsContainer = document.getElementById("resultsContainer");
+
+        // Salvar chave
+        btnSaveKey.addEventListener("click", async () => {
+            const token = apiKeyInput.value.trim();
+            const baseUrl = baseUrlInput.value.trim();
+            
+            if (!token) {
+                keyStatus.textContent = "❌ Token vazio";
+                return;
+            }
+            
+            try {
+                const res = await fetch(`${API_BASE}/api/session`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ api_key: token, base_url: baseUrl })
+                });
+                
+                if (!res.ok) {
+                    const data = await res.json();
+                    keyStatus.textContent = `❌ ${data.error || "Erro ao salvar"}`;
+                } else {
+                    keyStatus.textContent = "✅ Chave salva com sucesso!";
+                }
+            } catch (e) {
+                keyStatus.textContent = `❌ Erro: ${e.message}`;
+            }
+        });
+
+        // Carregar competições
+        btnLoadComps.addEventListener("click", async () => {
+            try {
+                analysisStatus.textContent = "⏳ Carregando competições...";
+                const res = await fetch(`${API_BASE}/api/competitions`);
+                if (!res.ok) throw new Error(await res.text());
+                
+                const data = await res.json();
+                competitionSelect.innerHTML = '<option value="">Selecione um campeonato...</option>';
+                
+                data.competitions.forEach(comp => {
+                    const opt = document.createElement("option");
+                    opt.value = comp.code;
+                    opt.textContent = `${comp.name} (${comp.code})`;
+                    competitionSelect.appendChild(opt);
+                });
+                
+                analysisStatus.textContent = "✅ Competições carregadas!";
+            } catch (e) {
+                analysisStatus.textContent = `❌ Erro: ${e.message}`;
+            }
+        });
+
+        // Carregar rodadas/temporada
+        btnLoadMeta.addEventListener("click", async () => {
+            const compCode = competitionSelect.value;
+            if (!compCode) {
+                analysisStatus.textContent = "⚠️ Selecione uma competição primeiro";
+                return;
+            }
+            
+            try {
+                analysisStatus.textContent = "⏳ Carregando temporada...";
+                const res = await fetch(`${API_BASE}/api/metadata?competition=${compCode}`);
+                if (!res.ok) throw new Error(await res.text());
+                
+                const data = await res.json();
+                
+                // Atualizar dados da competição
+                compMeta.textContent = `${data.name} • ${data.area} • Rodadas: 1-${data.last_updated_matchday || data.current_matchday}`;
+                
+                // Preencher select de rodadas
+                matchdaySelect.innerHTML = '<option value="">Selecione a rodada...</option>';
+                const maxMatchday = data.last_updated_matchday || data.current_matchday || 38;
+                for (let i = 1; i <= maxMatchday; i++) {
+                    const opt = document.createElement("option");
+                    opt.value = i;
+                    opt.textContent = `Rodada ${i}`;
+                    matchdaySelect.appendChild(opt);
+                }
+                
+                analysisStatus.textContent = "✅ Temporada carregada!";
+            } catch (e) {
+                analysisStatus.textContent = `❌ Erro: ${e.message}`;
+            }
+        });
+
+        // Carregar jogos quando rodada muda
+        matchdaySelect.addEventListener("change", loadFixtures);
+        matchdayNumInput.addEventListener("change", loadFixtures);
+
+        async function loadFixtures() {
+            const compCode = competitionSelect.value;
+            if (!compCode) return;
+            
+            const matchday = matchdaySelect.value || matchdayNumInput.value;
+            if (!matchday) return;
+            
+            try {
+                analysisStatus.textContent = "⏳ Carregando jogos...";
+                const res = await fetch(
+                    `${API_BASE}/api/fixtures?competition=${compCode}&matchday=${matchday}`
+                );
+                if (!res.ok) throw new Error(await res.text());
+                
+                const data = await res.json();
+                
+                fixturesContainer.innerHTML = '';
+                if (data.fixtures.length === 0) {
+                    fixturesContainer.innerHTML = '<p class="text-xs text-slate-500">Nenhum jogo encontrado.</p>';
+                    return;
+                }
+                
+                data.fixtures.forEach((fixture, idx) => {
+                    const div = document.createElement("div");
+                    div.className = "flex items-center gap-2 p-2 rounded bg-slate-800/30 hover:bg-slate-800/50 transition";
+                    
+                    const checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.className = "rounded";
+                    checkbox.value = fixture.match_id;
+                    checkbox.checked = true;
+                    
+                    const label = document.createElement("label");
+                    label.className = "flex-1 text-xs text-slate-200 cursor-pointer";
+                    label.textContent = `${fixture.home_team_name} x ${fixture.away_team_name} (${fixture.status})`;
+                    
+                    label.addEventListener("click", () => checkbox.click());
+                    
+                    div.appendChild(checkbox);
+                    div.appendChild(label);
+                    fixturesContainer.appendChild(div);
+                });
+                
+                analysisStatus.textContent = `✅ ${data.fixtures.length} jogo(s) carregado(s)!`;
+            } catch (e) {
+                analysisStatus.textContent = `❌ Erro: ${e.message}`;
+            }
+        }
+
+        // Selecionar/limpar todos
+        btnSelectAll.addEventListener("click", () => {
+            document.querySelectorAll("#fixturesContainer input[type=checkbox]").forEach(cb => cb.checked = true);
+        });
+
+        btnClearAll.addEventListener("click", () => {
+            document.querySelectorAll("#fixturesContainer input[type=checkbox]").forEach(cb => cb.checked = false);
+        });
+
+        // Analisar
+        btnAnalyze.addEventListener("click", async () => {
+            const compCode = competitionSelect.value;
+            const matchday = matchdaySelect.value || matchdayNumInput.value;
+            const selectedMatches = Array.from(
+                document.querySelectorAll("#fixturesContainer input[type=checkbox]:checked")
+            ).map(cb => cb.value);
+            
+            if (!compCode || !matchday || selectedMatches.length === 0) {
+                analysisStatus.textContent = "⚠️ Selecione competição, rodada e pelo menos um jogo";
+                return;
+            }
+            
+            try {
+                analysisStatus.textContent = "⏳ Analisando...";
+                const res = await fetch(`${API_BASE}/api/analyze`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        competition: compCode,
+                        matchday: matchday,
+                        fixtures: selectedMatches
+                    })
+                });
+                
+                if (!res.ok) throw new Error(await res.text());
+                
+                const snapshot = await res.json();
+                displayResults(snapshot);
+                resultsContainer.classList.remove("hidden");
+                analysisStatus.textContent = "✅ Análise concluída!";
+                resultsContainer.scrollIntoView({ behavior: "smooth", block: "start" });
+            } catch (e) {
+                analysisStatus.textContent = `❌ Erro: ${e.message}`;
+            }
+        });
+
+        function displayResults(data) {
+            // Status
+            document.getElementById("systemStatusText").textContent = 
+                data.system_status === "APROVADO" ? "✅ Aprovado" : "❌ Reprovado";
+            document.getElementById("systemStatusIcon").textContent = 
+                data.system_status === "APROVADO" ? "✅" : "❌";
+            document.getElementById("approvedCount").textContent = data.approved_count;
+            document.getElementById("rejectedCount").textContent = data.rejected_count;
+            document.getElementById("dataSource").textContent = data.data_source;
+            document.getElementById("analysisMode").textContent = data.analysis_mode;
+            
+            if (data.analysis_error) {
+                document.getElementById("analysisError").classList.remove("hidden");
+                document.getElementById("errorText").textContent = data.analysis_error;
+            } else {
+                document.getElementById("analysisError").classList.add("hidden");
+            }
+            
+            // Melhor
+            const best = data.best;
+            document.getElementById("bestMatch").textContent = best.status;
+            document.getElementById("bestConfidence").textContent = `${(best.confidence * 100).toFixed(0)}%`;
+            document.getElementById("bestMarket").textContent = best.market;
+            document.getElementById("bestOdd").textContent = best.odd_target.toFixed(2);
+            document.getElementById("bestReasons").textContent = best.reason_count;
+            document.getElementById("bestReason").textContent = 
+                best.reasons.slice(0, 2).join(" • ") || "Sem razões";
+            
+            // Tabela
+            const tbody = document.getElementById("recommendationsBody");
+            tbody.innerHTML = '';
+            data.ranked.forEach(rec => {
+                const tr = document.createElement("tr");
+                tr.className = "border-b border-slate-700";
+                tr.innerHTML = `
+                    <td class="py-2 px-4 text-slate-200">${rec.match}</td>
+                    <td class="py-2 px-4 text-center">${rec.approved ? "✅" : "❌"}</td>
+                    <td class="py-2 px-4 text-right text-emerald-400">${(rec.confidence * 100).toFixed(0)}%</td>
+                    <td class="py-2 px-4 text-right text-blue-400">${rec.combined_avg_goals.toFixed(2)}</td>
+                    <td class="py-2 px-4 text-right text-amber-400">${rec.market}</td>
+                    <td class="py-2 px-4 text-right text-rose-400">${rec.odd_target.toFixed(2)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            // Bankroll
+            const bankrollRows = document.getElementById("bankrollRows");
+            bankrollRows.innerHTML = '';
+            data.bankroll.forEach(row => {
+                const div = document.createElement("div");
+                div.className = "grid grid-cols-5 gap-2 text-xs text-slate-300 py-1 px-2 rounded hover:bg-slate-800/30";
+                div.innerHTML = `
+                    <div>${row.day}</div>
+                    <div class="text-right">$${row.opening_bankroll.toFixed(2)}</div>
+                    <div class="text-right text-emerald-400">+$${row.target_profit.toFixed(2)}</div>
+                    <div class="text-right text-blue-400">$${row.suggested_stake.toFixed(2)}</div>
+                    <div class="text-right text-amber-400">$${row.closing_bankroll.toFixed(2)}</div>
+                `;
+                bankrollRows.appendChild(div);
+            });
+            
+            document.getElementById("goalMessage").textContent = data.goal_message;
+        }
+    </script>
+</body>
+</html>

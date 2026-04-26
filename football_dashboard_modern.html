@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚽ Football Analytics Dashboard - Moderno</title>
+    
+    <!-- Google Fonts - Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        /* Animações customizadas */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(34, 197, 94, 0.3); }
+            50% { box-shadow: 0 0 15px rgba(34, 197, 94, 0.6); }
+        }
+        
+        .animate-slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .animate-pulse-glow {
+            animation: pulse-glow 2s infinite;
+        }
+        
+        /* Glass morphism effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Card animations */
+        .card-hover {
+            @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+        }
+        
+        /* Status indicators */
+        .badge-win {
+            @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-emerald-100 text-emerald-800;
+        }
+        
+        .badge-loss {
+            @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-rose-100 text-rose-800;
+        }
+        
+        .badge-pending {
+            @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-amber-100 text-amber-800;
+        }
+        
+        /* Gradient text */
+        .gradient-text {
+            @apply bg-gradient-to-r from-emerald-500 to-blue-500 bg-clip-text text-transparent;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 min-h-screen">
+    
+    <!-- Header -->
+    <header class="sticky top-0 z-50 border-b border-slate-800 glass">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="text-3xl">⚽</div>
+                    <div>
+                        <h1 class="text-2xl font-800 gradient-text">Football Analytics</h1>
+                        <p class="text-xs text-slate-400">Sistema de Apostas Inteligente</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-right">
+                        <p class="text-sm text-slate-400">Status do Sistema</p>
+                        <p class="text-lg font-bold text-emerald-400" id="systemStatus">🟢 ATIVO</p>
+                    </div>
+                    <button class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors text-sm font-semibold" id="settingsBtn">
+                        ⚙️ Configurar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        
+        <!-- KPI Cards -->
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            
+            <!-- Card: Bankroll -->
+            <div class="bg-gradient-to-br from-blue-900 to-blue-800 rounded-2xl p-6 card-hover border border-blue-700">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-semibold text-blue-200">Banca Disponível</h3>
+                    <span class="text-2xl">💰</span>
+                </div>
+                <p class="text-3xl font-800 text-white mb-2" id="bankroll">$1,250.00</p>
+                <p class="text-xs text-blue-300">+12.5% vs semana anterior</p>
+            </div>
+            
+            <!-- Card: Win Rate -->
+            <div class="bg-gradient-to-br from-emerald-900 to-emerald-800 rounded-2xl p-6 card-hover border border-emerald-700">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-semibold text-emerald-200">Taxa de Vitória</h3>
+                    <span class="text-2xl">📊</span>
+                </div>
+                <p class="text-3xl font-800 text-white mb-2" id="winRate">68.5%</p>
+                <p class="text-xs text-emerald-300">42 vitórias de 61 apostas</p>
+            </div>
+            
+            <!-- Card: ROI -->
+            <div class="bg-gradient-to-br from-purple-900 to-purple-800 rounded-2xl p-6 card-hover border border-purple-700">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-semibold text-purple-200">ROI</h3>
+                    <span class="text-2xl">📈</span>
+                </div>
+                <p class="text-3xl font-800 text-white mb-2" id="roi">+24.3%</p>
+                <p class="text-xs text-purple-300">Retorno sobre investimento</p>
+            </div>
+            
+            <!-- Card: Pending Bets -->
+            <div class="bg-gradient-to-br from-amber-900 to-amber-800 rounded-2xl p-6 card-hover border border-amber-700">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-semibold text-amber-200">Apostas Pendentes</h3>
+                    <span class="text-2xl">⏳</span>
+                </div>
+                <p class="text-3xl font-800 text-white mb-2" id="pendingBets">7</p>
+                <p class="text-xs text-amber-300">Aguardando resultado</p>
+            </div>
+        </section>
+        
+        <!-- Odds Realtime Monitor Section -->
+        <section class="mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-2xl font-700">📊 Monitoramento de Odds em Tempo Real</h2>
+                <button class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 transition-colors text-sm font-semibold" id="refreshOdds">
+                    🔄 Atualizar
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Odds Card 1 -->
+                <div class="bg-gradient-to-br from-slate-800 to-slate-700 rounded-2xl p-6 border border-slate-600 card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-lg font-bold">Manchester United</h3>
+                            <p class="text-sm text-slate-400">vs Liverpool</p>
+                        </div>
+                        <span class="px-3 py-1 rounded-full bg-emerald-900 text-emerald-300 text-xs font-semibold">LIVE</span>
+                    </div>
+                    
+                    <div class="space-y-3 mb-4">
+                        <div class="flex justify-between items-center p-3 bg-slate-900 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer">
+                            <span class="font-semibold">Vitória Casa</span>
+                            <span class="text-2xl font-800 text-emerald-400">1.85</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-slate-900 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer">
+                            <span class="font-semibold">Empate</span>
+                            <span class="text-2xl font-800 text-blue-400">3.50</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-slate-900 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer">
+                            <span class="font-semibold">Vitória Visitante</span>
+                            <span class="text-2xl font-800 text-rose-400">2.10</span>
+                        </div>
+                    </div>
+                    
+                    <p class="text-xs text-slate-400">Atualizado: 14:32:45 • Bookmaker: Pinnacle</p>
+                </div>
+                
+                <!-- Odds Card 2 -->
+                <div class="bg-gradient-to-br from-slate-800 to-slate-700 rounded-2xl p-6 border border-slate-600 card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-lg font-bold">Real Madrid</h3>
+                            <p class="text-sm text-slate-400">vs Barcelona</p>
+                        </div>
+                        <span class="px-3 py-1 rounded-full bg-emerald-900 text-emerald-300 text-xs font-semibold">LIVE</span>
+                    </div>
+                    
+                    <div class="space-y-3 mb-4">
+                        <div class="flex justify-between items-center p-3 bg-slate-900 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer">
+                            <span class="font-semibold">Over 2.5</span>
+                            <span class="text-2xl font-800 text-emerald-400">1.92</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-slate-900 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer">
+                            <span class="font-semibold">Under 2.5</span>
+                            <span class="text-2xl font-800 text-rose-400">1.95</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-slate-900 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer">
+                            <span class="font-semibold">Ambas marcam</span>
+                            <span class="text-2xl font-800 text-blue-400">1.83</span>
+                        </div>
+                    </div>
+                    
+                    <p class="text-xs text-slate-400">Atualizado: 14:32:45 • Bookmaker: Pinnacle</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Settlement History Section -->
+        <section class="mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-2xl font-700">📋 Histórico de Liquidações</h2>
+                <select class="px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-sm" id="filterStatus">
+                    <option value="">Todos</option>
+                    <option value="won">Vencidas</option>
+                    <option value="lost">Perdidas</option>
+                    <option value="pending">Pendentes</option>
+                </select>
+            </div>
+            
+            <div class="space-y-3">
+                <!-- Settlement Item 1 - Won -->
+                <div class="bg-gradient-to-r from-emerald-950 to-slate-800 rounded-2xl p-4 border border-emerald-700 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4 flex-1">
+                            <div class="w-12 h-12 rounded-lg bg-emerald-900 flex items-center justify-center text-xl">⚽</div>
+                            <div class="flex-1">
+                                <h3 class="font-bold">Manchester United 2 x 1 Liverpool</h3>
+                                <p class="text-sm text-slate-400">Vitória Casa • Odd 1.85</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="badge-win">🟢 VENCIDO</span>
+                            <p class="text-xl font-800 text-emerald-400 mt-2">+$85.00</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Settlement Item 2 - Lost -->
+                <div class="bg-gradient-to-r from-rose-950 to-slate-800 rounded-2xl p-4 border border-rose-700 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4 flex-1">
+                            <div class="w-12 h-12 rounded-lg bg-rose-900 flex items-center justify-center text-xl">⚽</div>
+                            <div class="flex-1">
+                                <h3 class="font-bold">Arsenal 0 x 2 Chelsea</h3>
+                                <p class="text-sm text-slate-400">Under 2.5 • Odd 1.95</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="badge-loss">🔴 PERDIDO</span>
+                            <p class="text-xl font-800 text-rose-400 mt-2">-$50.00</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Settlement Item 3 - Pending -->
+                <div class="bg-gradient-to-r from-amber-950 to-slate-800 rounded-2xl p-4 border border-amber-700 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4 flex-1">
+                            <div class="w-12 h-12 rounded-lg bg-amber-900 flex items-center justify-center text-xl animate-pulse">⚽</div>
+                            <div class="flex-1">
+                                <h3 class="font-bold">Bayern Munich vs Borussia Dortmund</h3>
+                                <p class="text-sm text-slate-400">Over 2.5 • Odd 1.88 • Começa em 2h 15min</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="badge-pending">⏳ PENDENTE</span>
+                            <p class="text-xl font-800 text-amber-400 mt-2">$100.00</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Recommendation Card -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-700 mb-4">💡 Recomendação do Sistema</h2>
+            
+            <div class="bg-gradient-to-br from-blue-950 via-slate-800 to-slate-900 rounded-2xl p-8 border-2 border-blue-700 animate-pulse-glow">
+                <div class="flex items-start gap-6">
+                    <div class="text-6xl">🎯</div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-3">
+                            <h3 class="text-2xl font-800">Juventus x AS Roma</h3>
+                            <span class="px-4 py-1 rounded-full bg-emerald-900 text-emerald-300 font-semibold text-sm">APROVADO</span>
+                        </div>
+                        <p class="text-sm text-slate-300 mb-4">
+                            Ambos times com histórico consistente. Over 2.5 tem 85% de chance baseado em dados históricos.
+                        </p>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                            <div class="bg-slate-900 rounded-lg p-3">
+                                <p class="text-xs text-slate-400">Confiança</p>
+                                <p class="text-xl font-800 text-emerald-400">82.5%</p>
+                            </div>
+                            <div class="bg-slate-900 rounded-lg p-3">
+                                <p class="text-xs text-slate-400">Mercado</p>
+                                <p class="text-xl font-800 text-blue-400">Over 2.5</p>
+                            </div>
+                            <div class="bg-slate-900 rounded-lg p-3">
+                                <p class="text-xs text-slate-400">Odd Alvo</p>
+                                <p class="text-xl font-800 text-purple-400">1.92</p>
+                            </div>
+                            <div class="bg-slate-900 rounded-lg p-3">
+                                <p class="text-xs text-slate-400">Sugestão de Stake</p>
+                                <p class="text-xl font-800 text-yellow-400">$150</p>
+                            </div>
+                        </div>
+                        
+                        <button class="w-full px-6 py-3 rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 font-bold text-white transition-all hover:shadow-lg hover:-translate-y-0.5">
+                            ✅ Colocar Aposta
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Bankroll Projection Chart -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-700 mb-4">📈 Projeção de Banca (30 dias)</h2>
+            
+            <div class="bg-gradient-to-br from-slate-800 to-slate-700 rounded-2xl p-6 border border-slate-600">
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-4">
+                    <div class="bg-slate-900 rounded-lg p-4 text-center hover:bg-slate-850 transition-colors">
+                        <p class="text-xs text-slate-400 mb-2">Dia 5</p>
+                        <p class="text-2xl font-800 text-blue-400">$1,312</p>
+                        <p class="text-xs text-slate-500">+$62</p>
+                    </div>
+                    <div class="bg-slate-900 rounded-lg p-4 text-center hover:bg-slate-850 transition-colors">
+                        <p class="text-xs text-slate-400 mb-2">Dia 10</p>
+                        <p class="text-2xl font-800 text-emerald-400">$1,380</p>
+                        <p class="text-xs text-slate-500">+$130</p>
+                    </div>
+                    <div class="bg-slate-900 rounded-lg p-4 text-center hover:bg-slate-850 transition-colors">
+                        <p class="text-xs text-slate-400 mb-2">Dia 15</p>
+                        <p class="text-2xl font-800 text-emerald-400">$1,458</p>
+                        <p class="text-xs text-slate-500">+$208</p>
+                    </div>
+                    <div class="bg-slate-900 rounded-lg p-4 text-center hover:bg-slate-850 transition-colors">
+                        <p class="text-xs text-slate-400 mb-2">Dia 20</p>
+                        <p class="text-2xl font-800 text-emerald-400">$1,547</p>
+                        <p class="text-xs text-slate-500">+$297</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-emerald-900 to-slate-900 rounded-lg p-4 text-center border border-emerald-700">
+                        <p class="text-xs text-emerald-300 mb-2 font-semibold">Dia 30 (Projeção)</p>
+                        <p class="text-2xl font-800 text-emerald-300">$1,752</p>
+                        <p class="text-xs text-emerald-400">+$502</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-800 rounded-2xl p-8 max-w-md w-full border border-slate-700 animate-slide-in">
+            <h2 class="text-2xl font-800 mb-6">⚙️ Configurações</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Banca Inicial ($)</label>
+                    <input type="number" placeholder="1000" class="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:border-emerald-500 focus:outline-none" value="1250">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Meta Diária (%)</label>
+                    <input type="number" placeholder="0.20" step="0.01" class="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:border-emerald-500 focus:outline-none" value="0.20">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Odd Mínima</label>
+                    <input type="number" placeholder="1.50" step="0.01" class="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:border-emerald-500 focus:outline-none" value="1.20">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Intervalo de Atualização (segundos)</label>
+                    <input type="number" placeholder="30" class="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:border-emerald-500 focus:outline-none" value="30">
+                </div>
+            </div>
+            
+            <div class="flex gap-3 mt-8">
+                <button class="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg font-semibold transition-colors" onclick="document.getElementById('settingsModal').classList.add('hidden')">
+                    Cancelar
+                </button>
+                <button class="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-semibold transition-colors text-white" onclick="saveSettings()">
+                    Salvar
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script>
+        // Modal de Configurações
+        document.getElementById('settingsBtn')?.addEventListener('click', () => {
+            document.getElementById('settingsModal').classList.remove('hidden');
+        });
+        
+        // Fechar modal ao clicar fora
+        document.getElementById('settingsModal')?.addEventListener('click', (e) => {
+            if (e.target === document.getElementById('settingsModal')) {
+                document.getElementById('settingsModal').classList.add('hidden');
+            }
+        });
+        
+        // Funções de utilidade
+        function saveSettings() {
+            console.log('Configurações salvas!');
+            document.getElementById('settingsModal').classList.add('hidden');
+        }
+        
+        // Auto-atualizar status do sistema a cada 5 segundos
+        setInterval(() => {
+            const statuses = ['🟢 ATIVO', '🟢 SINCRONIZANDO', '🟡 AGUARDANDO'];
+            const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+            // document.getElementById('systemStatus').textContent = randomStatus;
+        }, 5000);
+    </script>
+</body>
+</html>
